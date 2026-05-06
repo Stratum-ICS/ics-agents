@@ -31,10 +31,15 @@ description: >-
 |-------|------|
 | Human rules | `templates/instruction.md` |
 | Hub scaffold | `templates/hub.md.tpl` |
+| **Forked subagents (required)** | `agents/forked-subagents.md` |
 | Parent brief | `agents/parent-brief.md` |
 | Gap peer pass | `agents/gap-peer-pass.md` |
 | Newcomer validator | `agents/newcomer-path-validator.md` |
-| Forked subagents (Claude) | `agents/forked-subagents-claude-code.md` |
+
+## Subagent dispatch (all platforms)
+
+- **Always** use **forked / isolated** subagents per **`agents/forked-subagents.md`** when running any prompt under `agents/`. Keeps parent session small at init and avoids context bloat.
+- Hand off **`agents/parent-brief.md`** bullets + **one** agent file per fork; do not paste the entire SKILL into every child.
 
 ## Bootstrap (orchestrator)
 
@@ -77,23 +82,9 @@ Frontmatter: `phase: gaps` (or a more specific tag in body if needed). Link from
 
 ## Peer subagents
 
+- **Fork:** follow **`agents/forked-subagents.md`** then **`agents/parent-brief.md`** + **`agents/gap-peer-pass.md`** (one fork per role).
 - Before synthesis, run at least one pass using **`agents/gap-peer-pass.md`** (output under `peer/`).
 - Use **`agents/parent-brief.md`** to pass vault paths and require reading `instruction.md` first.
-
-## Parallel work — forked subagents (Claude Code)
-
-Assume **forked** subagents (inherited parent context) are available — team default is on in `~/.claude/settings.json`. The orchestrator should **fan out** forks for independent deliverables instead of one serial mega-agent.
-
-**Do this (parent stays in charge of merge + `hub.md`):**
-
-1. After **ingest**, spawn **one fork per ELI5 target** (e.g. one note per major section), each with a paste from **`agents/parent-brief.md`** plus the exact section scope and any excerpt path.
-2. After ELI5, spawn **up to four forks** for **`gaps/*.md`** (assumptions, not-tested, future-work, fragility) with disjoint prompts.
-3. Spawn **fork(s)** for **`agents/gap-peer-pass.md`** and, when ready, **`agents/newcomer-path-validator.md`**.
-4. **Throughput:** prefer many small forks over one long subagent; each fork writes only under `Research/papers/<paper_id>/` and uses the ICS commit line when committing.
-
-**Hard rule:** A **fork must not spawn another fork** (product limitation). Nested work is serialized by the **parent** (or combined into one child prompt).
-
-See **`agents/forked-subagents-claude-code.md`** for copy-paste orchestration wording.
 
 ## Synthesis
 
@@ -107,7 +98,7 @@ See **`agents/forked-subagents-claude-code.md`** for copy-paste orchestration wo
 
 ## Newcomer QA
 
-Run **`agents/newcomer-path-validator.md`** as a **fresh subagent** after there is material to read (at minimum hub + instruction + linked notes).
+Run **`agents/newcomer-path-validator.md`** as a **forked / isolated** subagent (**`agents/forked-subagents.md`**) after there is material to read (at minimum hub + instruction + linked notes). Hand off **`agents/parent-brief.md`** context + the validator file only.
 
 **Rubric (fail → fix before closing the session):**
 
@@ -120,12 +111,12 @@ Run **`agents/newcomer-path-validator.md`** as a **fresh subagent** after there 
 
 ## Recursive test loop (maintainers)
 
-When changing this skill, run at least one full dry run on the **internal test fixture** (below): bootstrap → ingest (MCP) → one ELI5 note → gap stubs or one gap file → newcomer validator subagent → apply edits to **this SKILL** and templates if the validator surfaces systemic issues. Repeat until the newcomer path is acceptable.
+When changing this skill, run at least one full dry run on the **internal test fixture** (below): bootstrap → ingest (MCP) → one ELI5 note → gap stubs or one gap file → newcomer validator as a **forked** subagent (**`agents/forked-subagents.md`**) → apply edits to **this SKILL** and templates if the validator surfaces systemic issues. Repeat until the newcomer path is acceptable.
 
 ## Platform install
 
-- **Cursor:** Point a project/user skill at this folder or symlink `skills/analyze-n-research/`; enable **pdftoagent** MCP (`user-pdftoagent-mcp`).
-- **Claude Code:** Install per host docs from `ics-agents/skills/analyze-n-research/`.
+- **Cursor:** Point a project/user skill at this folder or symlink `skills/analyze-n-research/`; enable **pdftoagent** MCP (`user-pdftoagent-mcp`). Dispatch subagents via Task with **`agents/forked-subagents.md`**.
+- **Claude Code:** Install per host docs from `ics-agents/skills/analyze-n-research/`. Enable **forked / isolated** subagents and follow **`agents/forked-subagents.md`** for every child prompt.
 
 ## Internal test fixture
 

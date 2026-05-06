@@ -1,6 +1,6 @@
 # Subagent: newcomer path validator
 
-The parent may dispatch you as a **forked** subagent for fast QA; do **not** spawn subagents yourself.
+**Dispatch:** Parent must spawn you as a **forked / isolated** subagent per [`forked-subagents.md`](forked-subagents.md); receive only the brief + this file, not the full skill or vault tree.
 
 You are **not** doing a full paper critique. You simulate **onboarding**: you may open **only**:
 

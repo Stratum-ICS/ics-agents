@@ -1,5 +1,7 @@
 # Parent orchestrator brief (subagents)
 
+**Dispatch:** Always use **forked / isolated** subagents per [`forked-subagents.md`](forked-subagents.md) so parent init and context stay small.
+
 Give subagents **only** what they need; they do not inherit your full session.
 
 ## Required context (paste for every subagent)
@@ -22,7 +24,3 @@ Give subagents **only** what they need; they do not inherit your full session.
 ## Outputs
 
 - Write deliverables as markdown files; link them from `hub.md` when the phase completes.
-
-## Forked subagents (Claude Code)
-
-The **parent** should spawn **multiple forked** subagents for **non-overlapping** files (see **`agents/forked-subagents-claude-code.md`**). Each fork still receives this brief **in full** plus a **single** scoped task (one ELI5 note, or one `gaps/*.md`, etc.). **Forks must not spawn sub-forks** — the parent runs later waves.
