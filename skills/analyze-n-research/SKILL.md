@@ -4,7 +4,8 @@ description: >-
   Use when a user wants a structured paper read-through in an ICS-backed Obsidian vault — ELI5
   segment notes, gap analysis (assumptions, untested claims, future work, fragility), peer subagent
   rounds, markdown outputs, and ICS commits with actor attribution. Requires pdftoagent-mcp for
-  PDF text. Canonical templates live in the ics-agents repo (instruction.md next to hub.md).
+  PDF text. Hub.md must carry a real title and “why we care” (not TBD-only) before bootstrap is
+  considered done for team onboarding. Canonical templates live in the ics-agents repo.
 ---
 
 # analyzeNresearch (ICS + Obsidian vault)
@@ -17,7 +18,7 @@ description: >-
 ## Prerequisites
 
 - Vault path (filesystem) known; **`ics`** initialized at vault root.
-- PDF path **inside the vault**; `pdf_rel_path` set consistently with `instruction.md`.
+- PDF path **inside the vault**; `pdf_rel_path` is **vault-root-relative** and must match **exactly** in every note’s frontmatter and in `hub.md` (same string as used for the `[[wikilink]]` target).
 - **`pdftoagent-mcp`** available for full-document extraction.
 
 ## Canonical repo
@@ -36,18 +37,22 @@ description: >-
 
 ## Bootstrap (orchestrator)
 
-1. Choose **`paper_id`** (e.g. journal id `s41534-021-00368-4`) and vault-relative **`pdf_rel_path`** (e.g. `papers/<paper_id>/<file>.pdf`).
+1. Choose **`paper_id`** (e.g. journal id `s41534-021-00368-4`) and vault-root-relative **`pdf_rel_path`** (e.g. `papers/<paper_id>/<file>.pdf` **or** `my-paper.pdf` if the file lives at the vault root — **one convention only**).
 2. Create folder `Research/papers/<paper_id>/`.
-3. Copy **`templates/instruction.md`** → `Research/papers/<paper_id>/instruction.md` (no edits required unless team extends actors/phases).
+3. Copy **`templates/instruction.md`** → `Research/papers/<paper_id>/instruction.md` (no edits required unless team extends actors/phases). If the instruction’s example `pdf_rel_path` differs from yours, that is fine — **your** hub and notes must all use **your** chosen path string.
 4. Render **`templates/hub.md.tpl`** → `Research/papers/<paper_id>/hub.md`:
-   - Replace `{{paper_id}}`, `{{pdf_rel_path}}`, `{{title_guess}}` (use `TBD` if unknown).
-5. Ensure `Research/inbox/` exists; optional first inbox note with same `paper_id` in frontmatter.
-6. **ICS commit** (human or agent):  
+   - Replace `{{paper_id}}`, `{{pdf_rel_path}}`.
+   - Replace `{{title_guess}}` with a **real title** before finishing bootstrap (from PDF metadata, first page via **pdftoagent-mcp**, DOI landing page, or user message). **Do not** ship `TBD` for team onboarding.
+   - Fill **`## Why we care`** on the hub with 1–3 bullets (team goal, decision this informs, or experiment milestone).
+5. **Optional (recommended for newcomer visibility):** create `gaps/*.md` **stubs** (`phase: gaps`, body: “Not started — see SKILL gap pass”) and link them from the hub **Note index** so lenses exist before they are filled.
+6. Ensure `Research/inbox/` exists; optional first inbox note with same `paper_id` in frontmatter.
+7. **ICS commit** (human or agent):  
    `[<actor>][research][<paper_id>][inbox] bootstrap hub + instruction`
 
 ## Ingest
 
-- Run **pdftoagent-mcp** against the PDF at `pdf_rel_path`. Do not invent quotes; cite section/page in each note.
+- Call **pdftoagent-mcp** `convert_pdf_quality` with **`input_path`** = absolute filesystem path to the PDF (derive from vault root + `pdf_rel_path`). Use `format: markdown`; if the engine times out, retry with a higher `timeout_seconds` or accept the server’s docling fallback — still cite sections/pages from the returned text.
+- Do not invent quotes; cite section/page in each note.
 
 ## ELI5 pass
 
@@ -67,7 +72,7 @@ Create under `Research/papers/<paper_id>/gaps/`:
 | `future-work.md` | What did they claim future work would address? |
 | `fragility.md` | What would break their result? |
 
-Frontmatter: `phase: gaps` (or a more specific tag in body if needed). Link from `hub.md`.
+Frontmatter: `phase: gaps` (or a more specific tag in body if needed). Link from `hub.md`. If stubs were created at bootstrap, replace “Not started” with real content.
 
 ## Peer subagents
 
@@ -86,13 +91,27 @@ Frontmatter: `phase: gaps` (or a more specific tag in body if needed). Link from
 
 ## Newcomer QA
 
-- After notes exist, run **`agents/newcomer-path-validator.md`** as a fresh subagent using only `hub.md` + linked notes.
+Run **`agents/newcomer-path-validator.md`** as a **fresh subagent** after there is material to read (at minimum hub + instruction + linked notes).
+
+**Rubric (fail → fix before closing the session):**
+
+1. **Orientation** — From hub + links alone: paper topic, why the team cares, and which phases remain.
+2. **Rules clarity** — A human can follow `instruction.md` for frontmatter, tree, and commit format.
+3. **Friction** — Path should feel **less** ad hoc than reading the PDF in isolation; if not, improve hub structure and links.
+4. **Gaps visibility** — Hub or index shows which gap lenses are **started vs empty** (stubs count).
+
+**Remediation:** If **orientation** fails, update **`hub.md` first** (title, **Why we care**, links) — do not only add ELI5 notes.
+
+## Recursive test loop (maintainers)
+
+When changing this skill, run at least one full dry run on the **internal test fixture** (below): bootstrap → ingest (MCP) → one ELI5 note → gap stubs or one gap file → newcomer validator subagent → apply edits to **this SKILL** and templates if the validator surfaces systemic issues. Repeat until the newcomer path is acceptable.
 
 ## Platform install
 
-- **Cursor:** Point a project/user skill at this folder or symlink `skills/analyze-n-research/`; enable **pdftoagent** MCP.
+- **Cursor:** Point a project/user skill at this folder or symlink `skills/analyze-n-research/`; enable **pdftoagent** MCP (`user-pdftoagent-mcp`).
 - **Claude Code:** Install per host docs from `ics-agents/skills/analyze-n-research/`.
 
 ## Internal test fixture
 
-- Vault: `/home/hahuy/Documents/obs-vault`; PDF: `s41534-021-00368-4.pdf` at vault-relative path per your layout; run bootstrap + one ELI5 + gap set + peer + newcomer validator.
+- Vault: `/home/hahuy/Documents/obs-vault`; PDF: `s41534-021-00368-4.pdf` (vault-root-relative `pdf_rel_path` example: `s41534-021-00368-4.pdf`).
+- Run: bootstrap (non-TBD title + Why we care) → `convert_pdf_quality` on absolute PDF path → one ELI5 + gap stubs → newcomer validator subagent.

@@ -7,9 +7,13 @@ title_guess: {{title_guess}}
 
 # Paper hub — {{paper_id}}
 
-**Working title (guess):** {{title_guess}}  
+**Working title:** {{title_guess}}  
 **PDF:** [[{{pdf_rel_path}}]]  
 **Rules:** [[instruction.md]]
+
+## Why we care
+
+- (1–3 bullets: team goal, decision this paper informs, or link to project milestone — **do not leave empty after bootstrap**.)
 
 ## Reading phases
 

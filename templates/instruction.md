@@ -41,7 +41,7 @@ actor: human         # optional: human | claude | cursor | ics-bot
 ---
 ```
 
-Adjust `pdf_rel_path` if the PDF lives elsewhere in the vault.
+`pdf_rel_path` is always **relative to the vault root** (not relative to the paper folder). Use the same string in every note and in `hub.md` (including the `[[wikilink]]` to the PDF). Adjust if you move the file.
 
 **`hub.md` exception:** use `kind: hub` (and omit `phase`, or set `phase` only if you also use phases on the hub — not recommended). All other notes use `phase` as below.
 

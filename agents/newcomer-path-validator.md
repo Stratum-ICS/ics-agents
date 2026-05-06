@@ -17,4 +17,4 @@ You **do not** open the PDF unless the hub explicitly tells you to for this exer
 
 ## Output
 
-Short markdown report: scores/paragraph per rubric item, blockers, and **one** concrete improvement to `hub.md` or `instruction.md`.
+Short markdown report: scores/paragraph per rubric item, blockers, and **one** concrete improvement to `hub.md`, `instruction.md`, or **`ics-agents/skills/analyze-n-research/SKILL.md`** if the failure is systemic.
