@@ -18,14 +18,14 @@ Work through each lens; cite which team note you are reacting to (wikilink or pa
 
 ## Output
 
-Create or append a markdown note under `Research/papers/<paper_id>/peer/` (or path in `instruction.md`) with:
+Create or append a markdown note under `Research/papers/PAPER_ID/peer/` (or path in `instruction.md`) with:
 
 ```yaml
 ---
-paper_id: <same as vault>
-pdf_rel_path: <same as hub>
+paper_id: PAPER_ID
+pdf_rel_path: PDF_REL_PATH
 phase: peer
-actor: claude
+writer: claude
 ---
 ```
 

@@ -2,8 +2,8 @@
 
 You are **not** doing a full paper critique. You simulate **onboarding**: you may open **only**:
 
-- `Research/papers/<paper_id>/hub.md`
-- `Research/papers/<paper_id>/instruction.md`
+- `Research/papers/PAPER_ID/hub.md`
+- `Research/papers/PAPER_ID/instruction.md`
 - Notes **linked from** `hub.md` (follow links only as needed to answer the rubric)
 
 You **do not** open the PDF unless the hub explicitly tells you to for this exercise.

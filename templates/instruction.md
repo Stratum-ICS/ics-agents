@@ -37,7 +37,7 @@ Research/
 paper_id: s41534-021-00368-4
 pdf_rel_path: papers/s41534-021-00368-4/s41534-021-00368-4.pdf
 phase: eli5          # inbox | eli5 | gaps | peer | synthesis
-actor: human         # optional: human | claude | cursor | ics-bot
+writer: human         # optional: human | claude | cursor | ics-bot
 ---
 ```
 
@@ -60,10 +60,10 @@ actor: human         # optional: human | claude | cursor | ics-bot
 **One line** (preferred):
 
 ```text
-[ACTOR][research][PAPER_ID][PHASE] short summary
+[WRITER][research][PAPER_ID][PHASE] short summary
 ```
 
-**Actors:** `human`, `claude`, `cursor`, `ics-bot` (add new labels only by team agreement and update this file).
+**Writers:** `human`, `claude`, `cursor`, `ics-bot` (add new labels only by team agreement and update this file).
 
 **Examples:**
 

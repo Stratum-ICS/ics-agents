@@ -3,7 +3,7 @@ name: analyze-n-research
 description: >-
   Use when a user wants a structured paper read-through in an ICS-backed Obsidian vault — ELI5
   segment notes, gap analysis (assumptions, untested claims, future work, fragility), peer subagent
-  rounds, markdown outputs, and ICS commits with actor attribution. Requires pdftoagent-mcp for
+  rounds, markdown outputs, and ICS commits with writer attribution. Requires pdftoagent-mcp for
   PDF text. Hub.md must carry a real title and “why we care” (not TBD-only) before bootstrap is
   considered done for team onboarding. Canonical templates live in the ics-agents repo.
 ---
@@ -39,7 +39,7 @@ description: >-
 
 1. Choose **`paper_id`** (e.g. journal id `s41534-021-00368-4`) and vault-root-relative **`pdf_rel_path`** (e.g. `papers/<paper_id>/<file>.pdf` **or** `my-paper.pdf` if the file lives at the vault root — **one convention only**).
 2. Create folder `Research/papers/<paper_id>/`.
-3. Copy **`templates/instruction.md`** → `Research/papers/<paper_id>/instruction.md` (no edits required unless team extends actors/phases). If the instruction’s example `pdf_rel_path` differs from yours, that is fine — **your** hub and notes must all use **your** chosen path string.
+3. Copy **`templates/instruction.md`** → `Research/papers/<paper_id>/instruction.md` (no edits required unless team extends writers/phases). If the instruction’s example `pdf_rel_path` differs from yours, that is fine — **your** hub and notes must all use **your** chosen path string.
 4. Render **`templates/hub.md.tpl`** → `Research/papers/<paper_id>/hub.md`:
    - Replace `{{paper_id}}`, `{{pdf_rel_path}}`.
    - Replace `{{title_guess}}` with a **real title** before finishing bootstrap (from PDF metadata, first page via **pdftoagent-mcp**, DOI landing page, or user message). **Do not** ship `TBD` for team onboarding.
@@ -47,7 +47,7 @@ description: >-
 5. **Optional (recommended for newcomer visibility):** create `gaps/*.md` **stubs** (`phase: gaps`, body: “Not started — see SKILL gap pass”) and link them from the hub **Note index** using a status table (columns: Note | Topics | Status, initial value `stub`) so lenses exist before they are filled.
 6. Ensure `Research/inbox/` exists; optional first inbox note with same `paper_id` in frontmatter.
 7. **ICS commit** (human or agent):  
-   `[<actor>][research][<paper_id>][inbox] bootstrap hub + instruction`
+   `[WRITER][research][PAPER_ID][inbox] bootstrap hub + instruction`
 
 ## Ingest
 
@@ -57,9 +57,9 @@ description: >-
 ## ELI5 pass
 
 - One note per major section (or per PDF chunk), under `Research/papers/<paper_id>/eli5/` (e.g. `01-abstract.md`).
-- Each file: YAML with `paper_id`, `pdf_rel_path`, `phase: eli5`, optional `actor`; body = plain-language explanation + **quoted or cited** source passage.
+- Each file: YAML with `paper_id`, `pdf_rel_path`, `phase: eli5`, optional `writer`; body = plain-language explanation + **quoted or cited** source passage.
 - Link new notes from `hub.md` “Note index” and tick the ELI5 checklist when done.
-- Commit after each section or logical batch: `[<actor>][research][<paper_id>][eli5] …`
+- Commit after each section or logical batch: `[WRITER][research][PAPER_ID][eli5] …`
 
 ## Gap pass (four files)
 
@@ -85,8 +85,8 @@ Frontmatter: `phase: gaps` (or a more specific tag in body if needed). Link from
 
 ## ICS commits
 
-- Format: `[<actor>][research][<paper_id>][<phase>] <summary>`
-- Actors: `human`, `claude`, `cursor`, `ics-bot` — extend only with team agreement (document in `instruction.md`).
+- Format: `[WRITER][research][PAPER_ID][PHASE] SUMMARY`
+- Writers: `human`, `claude`, `cursor`, `ics-bot` — extend only with team agreement (document in `instruction.md`).
 - Prefer **small, frequent** commits over one giant commit.
 
 ## Newcomer QA
