@@ -44,7 +44,7 @@ description: >-
    - Replace `{{paper_id}}`, `{{pdf_rel_path}}`.
    - Replace `{{title_guess}}` with a **real title** before finishing bootstrap (from PDF metadata, first page via **pdftoagent-mcp**, DOI landing page, or user message). **Do not** ship `TBD` for team onboarding.
    - Fill **`## Why we care`** on the hub with 1–3 bullets (team goal, decision this informs, or experiment milestone).
-5. **Optional (recommended for newcomer visibility):** create `gaps/*.md` **stubs** (`phase: gaps`, body: “Not started — see SKILL gap pass”) and link them from the hub **Note index** so lenses exist before they are filled.
+5. **Optional (recommended for newcomer visibility):** create `gaps/*.md` **stubs** (`phase: gaps`, body: “Not started — see SKILL gap pass”) and link them from the hub **Note index** using a status table (columns: Note | Topics | Status, initial value `stub`) so lenses exist before they are filled.
 6. Ensure `Research/inbox/` exists; optional first inbox note with same `paper_id` in frontmatter.
 7. **ICS commit** (human or agent):  
    `[<actor>][research][<paper_id>][inbox] bootstrap hub + instruction`
@@ -98,9 +98,9 @@ Run **`agents/newcomer-path-validator.md`** as a **fresh subagent** after there 
 1. **Orientation** — From hub + links alone: paper topic, why the team cares, and which phases remain.
 2. **Rules clarity** — A human can follow `instruction.md` for frontmatter, tree, and commit format.
 3. **Friction** — Path should feel **less** ad hoc than reading the PDF in isolation; if not, improve hub structure and links.
-4. **Gaps visibility** — Hub or index shows which gap lenses are **started vs empty** (stubs count).
+4. **Gaps visibility** — Hub or index shows which gap lenses are **started vs empty** (stubs count). Use a status table in `hub.md` (columns: Note | Topics | Status with values `stub` / `draft` / `closed`) rather than a flat link list — a flat list makes all stubs look identically incomplete.
 
-**Remediation:** If **orientation** fails, update **`hub.md` first** (title, **Why we care**, links) — do not only add ELI5 notes.
+**Remediation:** If **orientation** fails, update **`hub.md` first** (title, **Why we care**, links) — do not only add ELI5 notes. If **gaps visibility** fails, add the status table to `hub.md` — do not change the gap files themselves.
 
 ## Recursive test loop (maintainers)
 

@@ -1,6 +1,6 @@
 # Research folder rules
 
-**Paper id:** set in every note’s `paper_id` field (this folder is `papers/<paper_id>/`).  
+**Paper id:** set in every note’s `paper_id` field (this folder is `papers/PAPER_ID/`).  
 This file lives next to **`hub.md`**. Everyone (humans and agents) follows these rules so the vault stays navigable and **ICS** history stays readable.
 
 ## Tree (example)
@@ -27,7 +27,7 @@ Research/
       synthesis.md
 ```
 
-- **Inbox** = quick thoughts; promote stable content into `papers/<paper_id>/` and link from `hub.md`.
+- **Inbox** = quick thoughts; promote stable content into `papers/PAPER_ID/` and link from `hub.md`.
 - **One hub per paper** — do not create parallel “main” notes without linking them from `hub.md`.
 
 ## Frontmatter (required on every note)
@@ -60,7 +60,7 @@ actor: human         # optional: human | claude | cursor | ics-bot
 **One line** (preferred):
 
 ```text
-[<actor>][research][<paper_id>][<phase>] <short summary>
+[ACTOR][research][PAPER_ID][PHASE] short summary
 ```
 
 **Actors:** `human`, `claude`, `cursor`, `ics-bot` (add new labels only by team agreement and update this file).
