@@ -1,7 +1,7 @@
 ---
 paper_id: {{paper_id}}
 pdf_rel_path: {{pdf_rel_path}}
-phase: hub
+kind: hub
 title_guess: {{title_guess}}
 ---
 

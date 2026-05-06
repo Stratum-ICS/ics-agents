@@ -43,6 +43,8 @@ actor: human         # optional: human | claude | cursor | ics-bot
 
 Adjust `pdf_rel_path` if the PDF lives elsewhere in the vault.
 
+**`hub.md` exception:** use `kind: hub` (and omit `phase`, or set `phase` only if you also use phases on the hub — not recommended). All other notes use `phase` as below.
+
 ## Note shapes
 
 | `phase` | Purpose |
