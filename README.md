@@ -2,13 +2,16 @@
 
 Canonical **agent prompts**, **skills**, and **vault templates** for research workflows that use **ICS** (vault history via the `ics` CLI) and **Obsidian**.
 
+**Repository:** https://github.com/Stratum-ICS/ics-agents
+
 ## Layout
 
 | Path | Purpose |
 |------|--------|
-| `templates/instruction.md` | Copy or render beside each paper’s `hub.md`; human-facing rules for notes, tree, and commits. |
+| `templates/instruction.md` | Copy beside each paper’s `hub.md`; human-facing rules for notes, tree, and commits. |
+| `templates/hub.md.tpl` | Render to `hub.md` with `{{paper_id}}`, `{{pdf_rel_path}}`, `{{title_guess}}`. |
 | `skills/analyze-n-research/` | analyzeNresearch skill (Cursor + Claude entrypoints). |
-| `agents/` | Optional parent/peer subagent prompt fragments. |
+| `agents/` | Parent brief, peer pass, newcomer validator, and other prompt fragments. |
 
 ## Related repos
 

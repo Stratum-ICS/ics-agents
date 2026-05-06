@@ -20,30 +20,79 @@ description: >-
 - PDF path **inside the vault**; `pdf_rel_path` set consistently with `instruction.md`.
 - **`pdftoagent-mcp`** available for full-document extraction.
 
-## Canonical assets
+## Canonical repo
 
-- **Design / behavior:** `ics-obsidian/docs/superpowers/specs/2026-05-06-analyzeNresearch-ics-skill-design.md`
-- **Human rules template:** `ics-agents/templates/instruction.md` — copy to `Research/papers/<paper_id>/instruction.md` beside `hub.md` (replace `{{paper_id}}` if using templating).
+- **https://github.com/Stratum-ICS/ics-agents** — templates, this skill, agent prompts.
 
-## Workflow (orchestrator)
+## Canonical assets (paths in repo)
 
-1. **Bootstrap** — Create `Research/papers/<paper_id>/hub.md` and **`instruction.md`** from the template; ensure inbox/hub links and frontmatter conventions match the template.
-2. **Ingest** — Use **pdftoagent-mcp** on `pdf_rel_path`; do not invent quotes.
-3. **ELI5 pass** — Section-by-section notes under agreed paths; each note: frontmatter + plain language + cited passage.
-4. **Gap pass** — Four lenses (assumptions; not tested; future work; what would break results); separate notes under `gaps/` or equivalent.
-5. **Peer subagents** — Spawn at least one review pass using `agents/` prompts; record in `phase: peer` notes.
-6. **Synthesis** — One summary note; link from `hub.md`.
-7. **ICS commits** — After each stable unit: `[<actor>][research][<paper_id>][<phase>] summary` (see `instruction.md`). Use `claude` vs `ics-bot` consistently for automation.
+| Asset | Path |
+|-------|------|
+| Human rules | `templates/instruction.md` |
+| Hub scaffold | `templates/hub.md.tpl` |
+| Parent brief | `agents/parent-brief.md` |
+| Gap peer pass | `agents/gap-peer-pass.md` |
+| Newcomer validator | `agents/newcomer-path-validator.md` |
 
-## Subagent brief
+## Bootstrap (orchestrator)
 
-Pass: vault root, `paper_id`, absolute paths to `hub.md` and `instruction.md`, and current phase. Subagents **must** read `instruction.md` before creating files.
+1. Choose **`paper_id`** (e.g. journal id `s41534-021-00368-4`) and vault-relative **`pdf_rel_path`** (e.g. `papers/<paper_id>/<file>.pdf`).
+2. Create folder `Research/papers/<paper_id>/`.
+3. Copy **`templates/instruction.md`** → `Research/papers/<paper_id>/instruction.md` (no edits required unless team extends actors/phases).
+4. Render **`templates/hub.md.tpl`** → `Research/papers/<paper_id>/hub.md`:
+   - Replace `{{paper_id}}`, `{{pdf_rel_path}}`, `{{title_guess}}` (use `TBD` if unknown).
+5. Ensure `Research/inbox/` exists; optional first inbox note with same `paper_id` in frontmatter.
+6. **ICS commit** (human or agent):  
+   `[<actor>][research][<paper_id>][inbox] bootstrap hub + instruction`
 
-## Platform wrappers
+## Ingest
 
-- **Cursor:** Add user-rule or skill pointer to this file; ensure MCP `pdftoagent` enabled.
-- **Claude Code:** Install skill from `ics-agents/skills/analyze-n-research/` per host docs.
+- Run **pdftoagent-mcp** against the PDF at `pdf_rel_path`. Do not invent quotes; cite section/page in each note.
 
-## Testing (internal)
+## ELI5 pass
 
-- Vault `/home/hahuy/Documents/obs-vault`, PDF `s41534-021-00368-4.pdf`; run full workflow; second subagent validates newcomer path from `hub.md` only.
+- One note per major section (or per PDF chunk), under `Research/papers/<paper_id>/eli5/` (e.g. `01-abstract.md`).
+- Each file: YAML with `paper_id`, `pdf_rel_path`, `phase: eli5`, optional `actor`; body = plain-language explanation + **quoted or cited** source passage.
+- Link new notes from `hub.md` “Note index” and tick the ELI5 checklist when done.
+- Commit after each section or logical batch: `[<actor>][research][<paper_id>][eli5] …`
+
+## Gap pass (four files)
+
+Create under `Research/papers/<paper_id>/gaps/`:
+
+| File | Lens |
+|------|------|
+| `assumptions.md` | What did they assume? |
+| `not-tested.md` | What did they **not** test? |
+| `future-work.md` | What did they claim future work would address? |
+| `fragility.md` | What would break their result? |
+
+Frontmatter: `phase: gaps` (or a more specific tag in body if needed). Link from `hub.md`.
+
+## Peer subagents
+
+- Before synthesis, run at least one pass using **`agents/gap-peer-pass.md`** (output under `peer/`).
+- Use **`agents/parent-brief.md`** to pass vault paths and require reading `instruction.md` first.
+
+## Synthesis
+
+- Single `synthesis.md` in the paper folder with `phase: synthesis`; link prominently from `hub.md` and check off the synthesis phase.
+
+## ICS commits
+
+- Format: `[<actor>][research][<paper_id>][<phase>] <summary>`
+- Actors: `human`, `claude`, `cursor`, `ics-bot` — extend only with team agreement (document in `instruction.md`).
+- Prefer **small, frequent** commits over one giant commit.
+
+## Newcomer QA
+
+- After notes exist, run **`agents/newcomer-path-validator.md`** as a fresh subagent using only `hub.md` + linked notes.
+
+## Platform install
+
+- **Cursor:** Point a project/user skill at this folder or symlink `skills/analyze-n-research/`; enable **pdftoagent** MCP.
+- **Claude Code:** Install per host docs from `ics-agents/skills/analyze-n-research/`.
+
+## Internal test fixture
+
+- Vault: `/home/hahuy/Documents/obs-vault`; PDF: `s41534-021-00368-4.pdf` at vault-relative path per your layout; run bootstrap + one ELI5 + gap set + peer + newcomer validator.
