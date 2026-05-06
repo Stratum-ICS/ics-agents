@@ -1,16 +1,10 @@
-# Forked subagents — Claude Code (`CLAUDE_CODE_FORK_SUBAGENT=1`)
+# Forked subagents — Claude Code
 
-Use this when the product exposes **forked** subagents (env enabled). Plain “fresh subagent” prompts still apply; forks add **shared context** so you spend less time re-pasting vault state.
+Forks inherit **parent session context** so you re-paste less vault state than a cold subagent.
 
-## Enable (human / team)
+## Enable
 
-In **`~/.claude/settings.json`** (user or managed settings), under top-level **`env`**:
-
-```json
-"CLAUDE_CODE_FORK_SUBAGENT": "1"
-```
-
-Or export in the shell before `claude`: `export CLAUDE_CODE_FORK_SUBAGENT=1`.
+Team machines already set this in **`~/.claude/settings.json`** → **`env`** (see repo **README**). For a one-off shell: `export CLAUDE_CODE_FORK_SUBAGENT=1`.
 
 ## Orchestrator instructions (paste or paraphrase)
 

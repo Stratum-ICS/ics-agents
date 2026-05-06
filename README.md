@@ -20,15 +20,7 @@ Canonical **agent prompts**, **skills**, and **vault templates** for research wo
 
 ## Claude Code: forked subagents
 
-To use **forked** subagents (parallel child sessions with inherited context), set in **`~/.claude/settings.json`**:
-
-```json
-"env": {
-  "CLAUDE_CODE_FORK_SUBAGENT": "1"
-}
-```
-
-(Merge with your existing `env` keys.) The **analyze-n-research** skill and **`agents/forked-subagents-claude-code.md`** tell the orchestrator to fan out forks for ELI5 sections, gap files, peer pass, and newcomer QA.
+Set **`"CLAUDE_CODE_FORK_SUBAGENT": "1"`** inside **`env`** in **`~/.claude/settings.json`** (merge with existing keys). Prompts in this repo **assume** forks are on for orchestration. Details: **`agents/forked-subagents-claude-code.md`**.
 
 ## Conventions
 

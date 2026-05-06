@@ -82,7 +82,7 @@ Frontmatter: `phase: gaps` (or a more specific tag in body if needed). Link from
 
 ## Parallel work — forked subagents (Claude Code)
 
-When **`CLAUDE_CODE_FORK_SUBAGENT=1`** is set (see `env` in `~/.claude/settings.json` or the shell), Claude Code can run **forked** subagents that inherit the parent session context. The orchestrator should **fan out** forks for independent deliverables instead of one serial mega-agent.
+Assume **forked** subagents (inherited parent context) are available — team default is on in `~/.claude/settings.json`. The orchestrator should **fan out** forks for independent deliverables instead of one serial mega-agent.
 
 **Do this (parent stays in charge of merge + `hub.md`):**
 
