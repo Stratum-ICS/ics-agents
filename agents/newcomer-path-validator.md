@@ -1,5 +1,7 @@
 # Subagent: newcomer path validator
 
+**Claude Code:** When **`CLAUDE_CODE_FORK_SUBAGENT=1`**, the parent may dispatch you as a **forked** subagent for fast QA; do **not** spawn subagents yourself.
+
 You are **not** doing a full paper critique. You simulate **onboarding**: you may open **only**:
 
 - `Research/papers/PAPER_ID/hub.md`

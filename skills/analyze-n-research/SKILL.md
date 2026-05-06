@@ -34,6 +34,7 @@ description: >-
 | Parent brief | `agents/parent-brief.md` |
 | Gap peer pass | `agents/gap-peer-pass.md` |
 | Newcomer validator | `agents/newcomer-path-validator.md` |
+| Forked subagents (Claude) | `agents/forked-subagents-claude-code.md` |
 
 ## Bootstrap (orchestrator)
 
@@ -78,6 +79,21 @@ Frontmatter: `phase: gaps` (or a more specific tag in body if needed). Link from
 
 - Before synthesis, run at least one pass using **`agents/gap-peer-pass.md`** (output under `peer/`).
 - Use **`agents/parent-brief.md`** to pass vault paths and require reading `instruction.md` first.
+
+## Parallel work — forked subagents (Claude Code)
+
+When **`CLAUDE_CODE_FORK_SUBAGENT=1`** is set (see `env` in `~/.claude/settings.json` or the shell), Claude Code can run **forked** subagents that inherit the parent session context. The orchestrator should **fan out** forks for independent deliverables instead of one serial mega-agent.
+
+**Do this (parent stays in charge of merge + `hub.md`):**
+
+1. After **ingest**, spawn **one fork per ELI5 target** (e.g. one note per major section), each with a paste from **`agents/parent-brief.md`** plus the exact section scope and any excerpt path.
+2. After ELI5, spawn **up to four forks** for **`gaps/*.md`** (assumptions, not-tested, future-work, fragility) with disjoint prompts.
+3. Spawn **fork(s)** for **`agents/gap-peer-pass.md`** and, when ready, **`agents/newcomer-path-validator.md`**.
+4. **Throughput:** prefer many small forks over one long subagent; each fork writes only under `Research/papers/<paper_id>/` and uses the ICS commit line when committing.
+
+**Hard rule:** A **fork must not spawn another fork** (product limitation). Nested work is serialized by the **parent** (or combined into one child prompt).
+
+See **`agents/forked-subagents-claude-code.md`** for copy-paste orchestration wording.
 
 ## Synthesis
 
