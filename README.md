@@ -20,6 +20,6 @@ Canonical **agent prompts**, **skills**, and **vault templates** for research wo
 
 ## Conventions
 
-- **Subagents:** Every prompt under `agents/` is meant to run as a **forked / isolated** child — see **`agents/forked-subagents.md`**. Parents should paste minimal context (`parent-brief` + one agent file), not the whole skill at init.
+- **Subagents:** Every prompt under `agents/` is meant to run as a **forked ** child — see **`agents/forked-subagents.md`**. Parents should paste minimal context (`parent-brief` + one agent file), not the whole skill at init.
 - **Do not** duplicate `instruction.md` logic inside the plugin without a documented sync path from this repo.
 - Bump templates here first; skills should embed or reference paths under this repo.

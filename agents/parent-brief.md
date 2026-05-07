@@ -1,6 +1,6 @@
 # Parent orchestrator brief (subagents)
 
-**Dispatch:** Always use **forked / isolated** subagents per [`forked-subagents.md`](forked-subagents.md) so parent init and context stay small.
+**Dispatch:** Always use **forked** subagents per [`forked-subagents.md`](forked-subagents.md) so parent init and context stay small.
 
 Give subagents **only** what they need; they do not inherit your full session.
 

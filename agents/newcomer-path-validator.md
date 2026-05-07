@@ -1,6 +1,6 @@
 # Subagent: newcomer path validator
 
-**Dispatch:** Parent must spawn you as a **forked / isolated** subagent per [`forked-subagents.md`](forked-subagents.md); receive only the brief + this file, not the full skill or vault tree.
+**Dispatch:** Parent must spawn you as a **forked** subagent per [`forked-subagents.md`](forked-subagents.md); receive only the brief + this file, not the full skill or vault tree.
 
 You are **not** doing a full paper critique. You simulate **onboarding**: you may open **only**:
 
