@@ -55,10 +55,90 @@ description: >-
 7. **ICS commit** (human or agent):  
    `[WRITER][research][PAPER_ID][inbox] bootstrap hub + instruction`
 
-## Ingest
+## Ingest (Autonomous)
 
-- Call **pdftoagent-mcp** `convert_pdf_quality` with **`input_path`** = absolute filesystem path to the PDF (derive from vault root + `pdf_rel_path`). Use `format: markdown`; if the engine times out, retry with a higher `timeout_seconds` or accept the server’s docling fallback — still cite sections/pages from the returned text.
-- Do not invent quotes; cite section/page in each note.
+VAULT_ROOT is detected from the `VAULT_ROOT` environment variable, or from `~/.config/ics/settings.json` (key: `vault_root`). If neither is set, ask the user to set one.
+
+**Inputs:** `paper_id` (e.g. `s41534-021-00368-4`), `pdf_rel_path` (original PDF location, vault-root-relative or absolute).
+
+### 1a. Copy PDF to vault
+
+```
+Dest: VAULT_ROOT/Research/papers/<paper_id>/<paper_id>.pdf
+Source: pdf_rel_path (resolve relative to VAULT_ROOT if needed)
+Skip if dest exists AND dest file size == source file size (idempotent).
+```
+
+### 1b. Check idempotency
+
+```
+If VAULT_ROOT/Research/papers/<paper_id>/<paper_id>.md already exists:
+  → Log "Ingest already complete for <paper_id>, skipping."
+  → Skip to Step 1i.
+```
+
+### 1c. Submit async job
+
+Call `mcp__pdftoagent-mcp__submit_pdf_quality`:
+```
+input_path: VAULT_ROOT/Research/papers/<paper_id>/<paper_id>.pdf
+format: markdown
+extract_images: true
+```
+Save the returned `job_id`.
+
+### 1d. Poll for completion
+
+Poll `mcp__pdftoagent-mcp__get_job_status(job_id)` with exponential backoff:
+- Interval sequence: 15s → 30s → 60s → 120s (max), repeat
+- Total timeout: 30 minutes
+- On timeout: exit with error "Ingest timed out after 30 minutes. Run manually."
+- On status == "failed": exit with error showing reason from job status
+
+When status == "complete", proceed to Step 1e.
+
+### 1e. Retrieve markdown artifact
+
+Call `mcp__pdftoagent-mcp__get_artifact(artifact_path)` where `artifact_path` comes from `job_status["artifacts"]["markdown"]`.
+
+### 1f. Write <paper_id>.md
+
+Write to `VAULT_ROOT/Research/papers/<paper_id>/<paper_id>.md`:
+- First line: `<!-- original_pdf: Research/papers/<paper_id>/<paper_id>.pdf -->`
+- Body: markdown content from Step 1e
+
+### 1g. Write sidecar JSON
+
+Write to `VAULT_ROOT/Research/papers/<paper_id>/<paper_id>.md.sidecar.json`:
+```json
+{
+  "paper_id": "<paper_id>",
+  "pdf_rel_path": "Research/papers/<paper_id>/<paper_id>.pdf",
+  "ingested_at": "<ISO8601 timestamp>",
+  "page_count": <from job_status>,
+  "had_fallback": <fallback_reason is not null>,
+  "fallback_reason": <from job_status or null>,
+  "engine_used": "<from job_status>",
+  "artifacts": {
+    "markdown": "Research/papers/<paper_id>/<paper_id>.md",
+    "manifest": "<manifest path from job_status>"
+  }
+}
+```
+
+### 1h. ICS commit (best-effort)
+
+```
+ics commit -m "[claude][research][PAPER_ID][ingest] extracted N pages"
+```
+If commit fails, log warning but do not fail the phase.
+
+### 1i. Report
+
+Report to user:
+- `Ingest complete: Research/papers/<paper_id>/<paper_id>.md`
+- `N pages extracted` / `fallback used` (if applicable)
+- If skipped (idempotent): `Ingest already complete, skipping.`
 
 ## ELI5 pass
 
