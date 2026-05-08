@@ -29,6 +29,7 @@ timestamp() { date +%Y%m%d%H%M%S; }
 
 render_template() {
   local tpl="$1"; local out="$2"
+  grep -q '{{paper_id}}' "$tpl" || { echo "ERROR: template $tpl missing {{paper_id}}" >&2; exit 2; }
   sed -e "s/{{paper_id}}/${PAPER_ID}/g" \
       -e "s/{{pdf_rel_path}}/${PAPER_ID}.pdf/g" \
       -e "s/{{title_guess}}/PLACEHOLDER_TITLE/g" \
@@ -76,19 +77,53 @@ Stub — content pending.
 EOF
 
 # gap stubs
-for stub in assumptions not-tested future-work fragility; do
-  cat > "$TEST_DIR/gaps/${stub}.md" <<EOF
+cat > "$TEST_DIR/gaps/assumptions.md" <<'EOF'
 ---
 paper_id: s41534-021-00368-4
 pdf_rel_path: s41534-021-00368-4.pdf
 phase: gaps
 writer: claude
 ---
-# ${stub^}
+# Assumptions
 
 Stub — content pending.
 EOF
-done
+
+cat > "$TEST_DIR/gaps/not-tested.md" <<'EOF'
+---
+paper_id: s41534-021-00368-4
+pdf_rel_path: s41534-021-00368-4.pdf
+phase: gaps
+writer: claude
+---
+# Not-tested
+
+Stub — content pending.
+EOF
+
+cat > "$TEST_DIR/gaps/future-work.md" <<'EOF'
+---
+paper_id: s41534-021-00368-4
+pdf_rel_path: s41534-021-00368-4.pdf
+phase: gaps
+writer: claude
+---
+# Future-work
+
+Stub — content pending.
+EOF
+
+cat > "$TEST_DIR/gaps/fragility.md" <<'EOF'
+---
+paper_id: s41534-021-00368-4
+pdf_rel_path: s41534-021-00368-4.pdf
+phase: gaps
+writer: claude
+---
+# Fragility
+
+Stub — content pending.
+EOF
 
 log "Test folder created with stubs"
 
@@ -96,8 +131,8 @@ log "Test folder created with stubs"
 if [[ -x "$ICS_BINARY" ]]; then
   log "Running ics init + commit for bootstrap"
   cd "$VAULT_ROOT"
-  "$ICS_BINARY" init 2>/dev/null || true
-  "$ICS_BINARY" commit -m "[ics-bot][research][${PAPER_ID}][bootstrap] initial stubs" 2>/dev/null || true
+  "$ICS_BINARY" init 2>/dev/null || { echo "ERROR: ics init failed" >&2; exit 2; }
+  "$ICS_BINARY" commit -m "[ics-bot][research][${PAPER_ID}][bootstrap] initial stubs" 2>/dev/null || { echo "ERROR: ics commit (bootstrap) failed" >&2; exit 2; }
 else
   log "ics binary not found at $ICS_BINARY — skipping ICS commands"
 fi
@@ -106,7 +141,7 @@ fi
 if [[ -x "$ICS_BINARY" ]]; then
   log "Running ics commit after stubs"
   cd "$VAULT_ROOT"
-  "$ICS_BINARY" commit -m "[ics-bot][research][${PAPER_ID}][stubs] eli5 + gaps stubs" 2>/dev/null || true
+  "$ICS_BINARY" commit -m "[ics-bot][research][${PAPER_ID}][stubs] eli5 + gaps stubs" 2>/dev/null || { echo "ERROR: ics commit (stubs) failed" >&2; exit 2; }
 fi
 
 # === Phase 6: Inline rubric check ===
@@ -121,9 +156,9 @@ orient_fail=""
 if grep -q "PLACEHOLDER_TITLE" "$TEST_DIR/hub.md"; then
   orient_fail="title_guess is PLACEHOLDER_TITLE"
 fi
-# Check if ## Why we care has real content (not just placeholder text)
-# The template produces a bullet with "1–3 bullets" or "do not leave empty" as placeholder
-why_we_care_content=$(grep -A 5 "## Why we care" "$TEST_DIR/hub.md" | grep -v "^$" | grep -v "## Why we care" | grep -v "1–3 bullets" | grep -v "do not leave empty" | grep -v "PLACEHOLDER" | wc -l)
+# Check if ## Why we care has real content (not just placeholder text or empty lines)
+# Simplify: section should have at least one non-empty, non-heading line
+why_we_care_content=$(awk '/^## Why we care/,/^## / {if (/^[^##]/) lines++} END {print+lines}' "$TEST_DIR/hub.md")
 if (( why_we_care_content == 0 )); then
   orient_fail="${orient_fail:+$orient_fail; }## Why we care is empty"
 fi
