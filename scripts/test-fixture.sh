@@ -68,7 +68,7 @@ cat > "$TEST_DIR/eli5/01-abstract.md" <<'EOF'
 paper_id: s41534-021-00368-4
 pdf_rel_path: s41534-021-00368-4.pdf
 phase: eli5
-writer: ics-bot
+writer: claude
 ---
 # ELI5: Abstract
 
@@ -82,7 +82,7 @@ for stub in assumptions not-tested future-work fragility; do
 paper_id: s41534-021-00368-4
 pdf_rel_path: s41534-021-00368-4.pdf
 phase: gaps
-writer: ics-bot
+writer: claude
 ---
 # ${stub^}
 
