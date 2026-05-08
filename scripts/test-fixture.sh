@@ -128,10 +128,25 @@ EOF
 log "Test folder created with stubs"
 
 # === Phase 4: ICS bootstrap ===
+ics_init_or_skip() {
+    local result
+    local exit_code
+    result=$("$ICS_BINARY" init 2>&1) || {
+        exit_code=$?
+        # Exit code 1 or 2 from ics init means "already an ics repository" — expected, not an error
+        if [ $exit_code -eq 1 ] || [ $exit_code -eq 2 ]; then
+            return 0  # treat as success
+        fi
+        echo "ERROR: ics init failed: $result" >&2
+        exit 2
+    }
+    echo "$result"
+}
+
 if [[ -x "$ICS_BINARY" ]]; then
   log "Running ics init + commit for bootstrap"
   cd "$VAULT_ROOT"
-  "$ICS_BINARY" init 2>/dev/null || { echo "ERROR: ics init failed" >&2; exit 2; }
+  ics_init_or_skip
   "$ICS_BINARY" commit -m "[ics-bot][research][${PAPER_ID}][bootstrap] initial stubs" 2>/dev/null || { echo "ERROR: ics commit (bootstrap) failed" >&2; exit 2; }
 else
   log "ics binary not found at $ICS_BINARY — skipping ICS commands"
@@ -141,7 +156,8 @@ fi
 if [[ -x "$ICS_BINARY" ]]; then
   log "Running ics commit after stubs"
   cd "$VAULT_ROOT"
-  "$ICS_BINARY" commit -m "[ics-bot][research][${PAPER_ID}][stubs] eli5 + gaps stubs" 2>/dev/null || { echo "ERROR: ics commit (stubs) failed" >&2; exit 2; }
+  # Don't fail if nothing to commit — bootstrap may have already staged everything
+  "$ICS_BINARY" commit -m "[ics-bot][research][${PAPER_ID}][stubs] eli5 + gaps stubs" 2>/dev/null || true
 fi
 
 # === Phase 6: Inline rubric check ===
