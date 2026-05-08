@@ -27,7 +27,7 @@ You **do not** open the PDF unless the hub explicitly tells you to for this exer
 | orientation | ✅ PASS | Why we care filled, 4 phases, title set |
 | rules_clarity | ✅ PASS | instruction.md present |
 | friction | ⚠️ WARN | no notes linked yet |
-| gaps_visibility | ❌ FAIL (BLOCKER) | no status table | |
+| gaps_visibility | ❌ FAIL (BLOCKER) | no status table |
 
 ### BLOCKERs (must fix before closing session)
 1. [orientation] ...
