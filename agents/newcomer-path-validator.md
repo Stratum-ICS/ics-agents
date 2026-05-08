@@ -19,4 +19,54 @@ You **do not** open the PDF unless the hub explicitly tells you to for this exer
 
 ## Output
 
-Short markdown report: scores/paragraph per rubric item, blockers, and **one** concrete improvement to `hub.md`, `instruction.md`, or **`ics-agents/skills/analyze-n-research/SKILL.md`** if the failure is systemic.
+```markdown
+## Validator Report
+
+| Rubric | Result | Detail |
+|--------|--------|--------|
+| orientation | ✅ PASS / ❌ FAIL (BLOCKER) | ... |
+| rules_clarity | ✅ PASS / ⚠️ WARN | ... |
+| friction | ✅ PASS / ⚠️ WARN | ... |
+| gaps_visibility | ✅ PASS / ❌ FAIL (BLOCKER) | ... |
+
+### BLOCKERs (must fix before closing session)
+1. [orientation] ...
+   → Action: ...
+
+### Warnings (should improve)
+1. [friction] ...
+   → Suggestion: ...
+```
+
+### BLOCKER vs WARN levels
+
+| Level | Meaning | Script action |
+|---|---|---|
+| **BLOCKER** | Newcomer cannot orient or follow rules; must fix before the paper is readable | Exit code 1 on fixture script |
+| **WARN** | Friction or incomplete info; should fix but doesn't block | Logged, no exit failure |
+
+### Per-rubric remediation hints
+
+**Orientation** — BLOCKER if:
+- `hub.md` `title_guess` is `{{title_guess}}` (template not filled)
+- `## Why we care` section is empty (no bullets)
+- Phase checklist has fewer than 4 items
+
+  → Action: Replace `{{title_guess}}` in hub.md with real paper title; fill "Why we care" with 1-3 bullets (team goal, decision this informs, or experiment milestone).
+
+**Rules clarity** — BLOCKER if:
+- `instruction.md` is missing or unreadable
+- Frontmatter template not present in `instruction.md`
+
+  → Action: Ensure `templates/instruction.md` was copied to the paper folder.
+
+**Friction** — WARN if:
+- `hub.md` has no wikilinks to notes (empty Note index)
+- Links don't match actual files
+
+  → Suggestion: Link at least one stub note from hub.md Note index; ensure each link points to an existing file.
+
+**Gaps visibility** — BLOCKER if:
+- No status table (columns: Note | Topics | Status) in `hub.md`
+
+  → Action: Add hub.md status table with columns Note | Topics | Status; use values `stub` / `draft` / `closed`.
