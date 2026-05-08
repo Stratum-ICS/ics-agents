@@ -28,11 +28,12 @@ ics-agents provides:
 
 ### What to build
 
-`scripts/test-fixture.sh` — a shell script that exercises the full skill on the internal test fixture.
+`scripts/test-fixture.sh` — a shell script that backs up the existing paper folder, exercises the full skill on a fresh copy, and reports the newcomer-validator rubric results.
 
 **Prerequisites:**
 - Vault at `/home/hahuy/Documents/obs-vault`
 - PDF fixture at vault root: `s41534-021-00368-4.pdf`
+- Source paper folder: `Research/papers/s41534-021-00368-4/`
 - `ics` on PATH
 - `pdftoagent-mcp` available (via `mcp__pdftoagent-mcp__convert_pdf_quality`)
 
@@ -44,50 +45,71 @@ set -e
 
 VAULT_ROOT="/home/hahuy/Documents/obs-vault"
 PAPER_ID="s41534-021-00368-4"
-PAPER_DIR="$VAULT_ROOT/Research/papers/$PAPER_ID"
+SRC_DIR="$VAULT_ROOT/Research/papers/$PAPER_ID"
+TEST_DIR="$VAULT_ROOT/Research/papers/${PAPER_ID}-2nd"
+BACKUP_DIR="$VAULT_ROOT/Research/papers/${PAPER_ID}-backup-$(date +%Y%m%d%H%M%S)"
 
-# 1. Bootstrap
-mkdir -p "$PAPER_DIR"
-cp templates/instruction.md "$PAPER_DIR/instruction.md"
-# Render hub.md.tpl with paper_id, pdf_rel_path, title_guess
-# (title_guess from first page of PDF via pdftoagent-mcp or user-supplied)
+# 0. Backup existing paper folder
+if [ -d "$SRC_DIR" ]; then
+  cp -r "$SRC_DIR" "$BACKUP_DIR"
+  echo "[backup] $SRC_DIR → $BACKUP_DIR"
+fi
 
-# 2. ICS init if needed
+# 1. Create fresh test folder
+rm -rf "$TEST_DIR"
+mkdir -p "$TEST_DIR"
+
+# 2. Copy instruction.md
+cp templates/instruction.md "$TEST_DIR/instruction.md"
+
+# 3. Render hub.md.tpl → $TEST_DIR/hub.md
+#    Replace {{paper_id}}, {{pdf_rel_path}}, {{title_guess}}
+#    (title_guess from first page of PDF via pdftoagent-mcp, or user-supplied on CLI)
+#    pdf_rel_path = "s41534-021-00368-4.pdf" (PDF at vault root)
+
+# 4. ICS init if needed (one-time per vault)
 cd "$VAULT_ROOT"
 ics init 2>/dev/null || true
 
-# 3. ICS commit bootstrap
+# 5. ICS commit bootstrap
 ics commit -m "[human][research][$PAPER_ID][inbox] bootstrap hub + instruction"
 
-# 4. PDF ingest via pdftoagent-mcp
+# 6. PDF ingest via pdftoagent-mcp (optional — token-expensive)
 # call: mcp__pdftoagent-mcp__convert_pdf_quality
-# input_path = absolute path to PDF
+# input_path = absolute path to PDF ($VAULT_ROOT/s41534-021-00368-4.pdf)
 # format = markdown, extract_images = true
+# On timeout or failure: continue without extracted text, log warning
 
-# 5. Create one ELI5 note + gap stubs
-mkdir -p "$PAPER_DIR/eli5" "$PAPER_DIR/gaps"
-# Write eli5/01-abstract.md, gaps/assumptions.md stubs
-# with correct frontmatter (paper_id, pdf_rel_path, phase, writer)
+# 7. Create one ELI5 note + gap stubs (manually — not full MCP extract)
+mkdir -p "$TEST_DIR/eli5" "$TEST_DIR/gaps"
+# Write eli5/01-abstract.md with placeholder body (paper title, section cite)
+# Write gaps/assumptions.md, gaps/not-tested.md, gaps/future-work.md, gaps/fragility.md stubs
+# All with correct frontmatter: paper_id, pdf_rel_path, phase, writer
 
-# 6. ICS commit
+# 8. ICS commit after ingest
 ics commit -m "[claude][research][$PAPER_ID][eli5] bootstrap test — abstract"
 
-# 7. Run newcomer-validator as forked subagent
-# Hand off agents/parent-brief.md bullets + agents/newcomer-path-validator.md
-# Capture subagent output
+# 9. Run newcomer-validator as forked subagent
+#    Hand off agents/parent-brief.md bullets + agents/newcomer-path-validator.md
+#    Vault root = $VAULT_ROOT, paper_id = $PAPER_ID
+#    PDF at $VAULT_ROOT/s41534-021-00368-4.pdf
+#    Capture subagent output to $TEST_DIR/validator-report.md
 
-# 8. Report rubric pass/fail
-# Format: JSON or text with per-rubric result + any BLOCKERs
+# 10. Report rubric pass/fail
+#     Parse validator output or run inline rubric check
+#     Format: per-rubric result + BLOCKERs
 ```
 
 **Exit codes:**
-- `0` — all BLOCKERs pass
+- `0` — all BLOCKERs pass (or only WARNs fail)
 - `1` — one or more BLOCKERs fail (with output explaining which rubric items failed)
-- `2` — fixture setup or tool failure (ics not found, MCP unavailable, etc.)
+- `2` — fixture setup or tool failure (ics not found, MCP unavailable, source folder missing, etc.)
 
 **Output format:**
 ```
 === Fixture Test Report ===
+Backup:   $BACKUP_DIR
+Test dir: $TEST_DIR
 Rubric: orientation      PASS / FAIL (BLOCKER) — <reason>
 Rubric: rules_clarity    PASS / FAIL (WARN)    — <reason>
 Rubric: friction         PASS / FAIL (WARN)     — <reason>
@@ -95,15 +117,17 @@ Rubric: gaps_visibility  PASS / FAIL (BLOCKER) — <reason>
 === Outcome: PASS / FAIL ===
 ```
 
-### Vault fixture cleanup
+### Vault state after run
 
-After the test, the vault is left in the state of a real bootstrap + one ELI5 + gap stubs. This is intentional — it becomes a real example in the vault that humans can inspect.
+- Original folder backed up to `Research/papers/s41534-021-00368-4-backup-YYYYMMDDHHMMSS/`
+- Test runs against `Research/papers/s41534-021-00368-4-2nd/`
+- Vault is left with a real end-to-end example humans can inspect
 
 ### What this does NOT do
 
-- It does NOT run pdftoagent-mCP against the full PDF every time (token expensive). Stub ELI5 notes are created manually in the script; the MCP call is optional/future.
+- It does NOT run pdftoagent-mCP against the full PDF every time (token expensive). Stub ELI5 notes are created manually in the script; the MCP call is attempted once and gracefully skipped on failure.
 - It does NOT run full peer pass subagents.
-- It does NOT modify the fixture vault in a way that requires teardown.
+- It does NOT modify the original source folder.
 
 ---
 
