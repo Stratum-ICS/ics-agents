@@ -169,7 +169,7 @@ if [[ "$RUN_INGEST" == "true" ]]; then
   # This flag signals that the test fixture should verify ingest outputs exist.
   # In a full e2e test, the agent would run here. For fixture validation,
   # we verify the expected output paths are not present yet.
-  INGEST_DEST="$TEST_DIR/<paper_id>.md"
+  INGEST_DEST="$TEST_DIR/${PAPER_ID}.md"
   if [[ -f "$INGEST_DEST" ]]; then
     log "Ingest output found: $INGEST_DEST"
   else
