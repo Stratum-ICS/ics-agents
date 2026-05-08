@@ -24,10 +24,10 @@ You **do not** open the PDF unless the hub explicitly tells you to for this exer
 
 | Rubric | Result | Detail |
 |--------|--------|--------|
-| orientation | ✅ PASS / ❌ FAIL (BLOCKER) | ... |
-| rules_clarity | ✅ PASS / ⚠️ WARN | ... |
-| friction | ✅ PASS / ⚠️ WARN | ... |
-| gaps_visibility | ✅ PASS / ❌ FAIL (BLOCKER) | ... |
+| orientation | ✅ PASS | Why we care filled, 4 phases, title set |
+| rules_clarity | ✅ PASS | instruction.md present |
+| friction | ⚠️ WARN | no notes linked yet |
+| gaps_visibility | ❌ FAIL (BLOCKER) | no status table | |
 
 ### BLOCKERs (must fix before closing session)
 1. [orientation] ...
@@ -42,7 +42,7 @@ You **do not** open the PDF unless the hub explicitly tells you to for this exer
 
 | Level | Meaning | Script action |
 |---|---|---|
-| **BLOCKER** | Newcomer cannot orient or follow rules; must fix before the paper is readable | Exit code 1 on fixture script |
+| **BLOCKER** | Newcomer cannot orient or follow rules; must fix before the paper is readable | Exit code 1 on the validation step |
 | **WARN** | Friction or incomplete info; should fix but doesn't block | Logged, no exit failure |
 
 ### Per-rubric remediation hints
