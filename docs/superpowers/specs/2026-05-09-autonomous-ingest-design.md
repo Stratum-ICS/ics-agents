@@ -12,7 +12,7 @@ Autonomous Ingest wraps the pdftoagent-mcp async job interface to extract text f
 
 **What it does:**
 1. Detect the obsidian vault root (`VAULT_ROOT`)
-2. Copy the PDF from its current location into the vault at `Research/papers/<paper_id>/paper.pdf`
+2. Copy the PDF from its current location into the vault at `Research/papers/<paper_id>/<paper_id>.pdf` (preserve original filename if it differs from the paper_id)
 3. Submit the PDF to pdftoagent-mcp as an async job
 4. Poll until complete, then persist the extracted markdown to `Research/papers/<paper_id>/<paper_id>.md`
 5. Write a sidecar JSON with structured metadata
@@ -24,8 +24,8 @@ Autonomous Ingest wraps the pdftoagent-mcp async job interface to extract text f
 
 | File | Content |
 |------|---------|
-| `Research/papers/<paper_id>/paper.pdf` | PDF copied from original location |
-| `Research/papers/<paper_id>/<paper_id>.md` | Extracted markdown; first line is `<!-- original_pdf: Research/papers/<paper_id>/paper.pdf -->` |
+| `Research/papers/<paper_id>/<paper_id>.pdf` | PDF copied from original location (preserves original filename if it differs) |
+| `Research/papers/<paper_id>/<paper_id>.md` | Extracted markdown; first line is `<!-- original_pdf: Research/papers/<paper_id>/<paper_id>.pdf -->` |
 | `Research/papers/<paper_id>/<paper_id>.md.sidecar.json` | Structured metadata |
 
 ### Sidecar Schema
@@ -33,7 +33,7 @@ Autonomous Ingest wraps the pdftoagent-mcp async job interface to extract text f
 ```json
 {
   "paper_id": "s41534-021-00368-4",
-  "pdf_rel_path": "Research/papers/s41534-021-00368-4/paper.pdf",
+  "pdf_rel_path": "Research/papers/s41534-021-00368-4/s41534-021-00368-4.pdf",
   "ingested_at": "2026-05-09T10:00:00Z",
   "page_count": 12,
   "had_fallback": false,
@@ -60,7 +60,8 @@ analyze-n-research skill
     │
     ├── 1b. Copy PDF to vault
     │       Source: pdf_rel_path (absolute or relative to vault)
-    │       Dest:   VAULT_ROOT/Research/papers/<paper_id>/paper.pdf
+    │       Dest:   VAULT_ROOT/Research/papers/<paper_id>/<paper_id>.pdf
+    │               (or preserve original filename if it differs from paper_id)
     │       Skip if dest already exists (idempotent)
     │
     ├── 1c. Check if already ingested
@@ -69,7 +70,7 @@ analyze-n-research skill
     │
     ├── 1d. Submit async job
     │       Call: mcp__pdftoagent-mcp__submit_pdf_quality(
-    │         input_path=VAULT_ROOT/Research/papers/<paper_id>/paper.pdf,
+    │         input_path=VAULT_ROOT/Research/papers/<paper_id>/<paper_id>.pdf,
     │         format="markdown",
     │         extract_images=true
     │       )
@@ -88,7 +89,7 @@ analyze-n-research skill
     │
     ├── 1g. Write <paper_id>.md with inline PDF path comment
     │       Dest: VAULT_ROOT/Research/papers/<paper_id>/<paper_id>.md
-    │       First line: <!-- original_pdf: Research/papers/<paper_id>/paper.pdf -->
+    │       First line: <!-- original_pdf: Research/papers/<paper_id>/<paper_id>.pdf -->
     │       Body: markdown content from get_artifact
     │
     ├── 1h. Write sidecar JSON
@@ -114,7 +115,7 @@ analyze-n-research skill
 ## Idempotency
 
 - If `<paper_id>.md` already exists: skip ingestion, log "Ingest complete, skipping"
-- If PDF copy dest already exists: assume up-to-date, skip copy
+- If PDF copy dest already exists: assume up-to-date, skip copy (compare file size to detect changed source)
 - Re-ingest is always possible by deleting `<paper_id>.md` first
 
 ---
@@ -123,7 +124,7 @@ analyze-n-research skill
 
 | Failure mode | Behavior |
 |---|---|
-| PDF path does not exist | Fail fast with clear message: "PDF not found at <path>" |
+| PDF path does not exist | Fail fast with clear message: "PDF not found at <path>"; list both source path and intended vault dest |
 | MCP server down | Retry N times with backoff, then exit error — human handles manually |
 | Poll timeout (30 min) | Exit error: "Ingest timed out after 30 minutes" |
 | Job status == "failed" | Exit error with reason from job status |
