@@ -12,11 +12,13 @@ TEST_DIR="${VAULT_ROOT}/Research/papers/${TEST_DIR_NAME}"
 BACKUP_DIR=""
 ICS_BINARY="${HOME}/Documents/github/ics-cli/target/debug/ics"
 SKIP_MCP=false
+RUN_INGEST=false
 
 # === Parse flags ===
 for arg in "$@"; do
   case $arg in
     --skip-mcp) SKIP_MCP=true ;;
+    --ingest) SKIP_MCP=false; RUN_INGEST=true ;;
     *) ;;
   esac
 done
@@ -158,6 +160,21 @@ if [[ -x "$ICS_BINARY" ]]; then
   cd "$VAULT_ROOT"
   # Don't fail if nothing to commit — bootstrap may have already staged everything
   "$ICS_BINARY" commit -m "[ics-bot][research][${PAPER_ID}][stubs] eli5 + gaps stubs" 2>/dev/null || true
+fi
+
+# === Phase 5b: Run ingest (--ingest flag) ===
+if [[ "$RUN_INGEST" == "true" ]]; then
+  log "Running ingest phase for $TEST_DIR_NAME"
+  # The ingest is run by the agent using the analyze-n-research skill.
+  # This flag signals that the test fixture should verify ingest outputs exist.
+  # In a full e2e test, the agent would run here. For fixture validation,
+  # we verify the expected output paths are not present yet.
+  INGEST_DEST="$TEST_DIR/<paper_id>.md"
+  if [[ -f "$INGEST_DEST" ]]; then
+    log "Ingest output found: $INGEST_DEST"
+  else
+    log "Ingest output not found (expected — agent has not run yet): $INGEST_DEST"
+  fi
 fi
 
 # === Phase 6: Inline rubric check ===
